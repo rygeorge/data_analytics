@@ -1,0 +1,153 @@
+---
+title: "Assignment 3"
+author: "Ryan George"
+date: "18/10/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("C:/Users/ryans/Documents/POLI 210")
+elct.df<-read.csv("druckman_2003.csv")
+```
+# Question 1
+
+  From the hypothetical results that are shown in the table, there is a correlation between the number of viewers and listeners for each media format and who they thought won. Out of the 723 who listened to the debate on the radio, 64% thought Nixon won, and 36% thought Kennedy had won. The television viewers thought otherwise, with 42% thinking Nixon won and the majority at 58% thinking Kennedy won. From the data, it seems that there is a correlation between the perception of who won and the media format. 
+
+  As previously mentioned, those listening on the radio thought Nixon won and those watching on the Television thought Kennedy won. The reasoning to as why this occurs cannot be extrapolated from the table alone as this is inherently multi-variable, nevertheless we can conclude that a correlation exists but we cannot draw a conclusion on if a causal relationship exists as there are confounding variables that are not addressed in this hypothetical survey. 
+
+
+# Question 2
+
+  Assuming that there is no causal effect, a confounding variable that can explain the patterns in the table could be socioeconomic political affiliation, as those who used Radios in the 1960s were often from lower-income classes from rural areas, thus being more conservative. Furthermore, radios are older and a case could be made that older people used radios more and that the elderly are generally more conservative. Televisions are also more expensive than radios, meaning that there is a relationship between socioeconomic status and the self-selection for who won. 
+
+
+# Question 3
+
+  We are missing the data of those who watched TV instead of listening to the Radio, and those who listened to the Radio instead of watching TV. The causal inference will be the treatment that did not happen, in this case watching the debate on TV versus listening on the Radio. This is known as the fundamental problem of causal inference as researchers can never observe subjects under both control and treatment groups.
+
+  This can be represented as an equation, assuming that the treatment for this subject is if participants watched the debate on the TV. 
+
+Y: Presidential winner prediction 
+
+Yi(0): Y value that would take if i unit listened to presidential debate on radio 
+
+Yi(1): Y value that would take if i unit watched presidential debate on the TV
+
+T(i): Individual treatment effect 
+
+T(i) = Yi(1)-Y(0)
+
+  As mentioned previously, the fundamental problem of causal inference is that there will be missing data as researchers can never observe subjects under both control and treatment groups. In this case, the missing data is represented as Yi(0), the value that Y would take if unit i listened to the debate on the radio. Logically this makes sense as researchers cannot get data to those who listened to the radio if they had already selected the treatment, which was watching the presidential debate on the television. 
+
+
+
+# Question 4
+```{r}
+
+mean(elct.df$won2, na.rm = TRUE)
+##Average participant perception of winner
+
+mean(elct.df$tv, na.rm = TRUE)
+#Average participant media format 
+
+
+mean_radio <- mean(elct.df$won2[elct.df$tv ==0],na.rm = TRUE) #Radio listeners 
+mean_tv <- mean(elct.df$won2[elct.df$tv ==1],na.rm = TRUE) #TV watchers 
+#The function above calculates mean of won2 when tv ==1 or 0
+
+print(mean_tv - mean_radio)
+
+
+#difference between treatment mean and control mean gives impact size 
+
+table(elct.df$tv, elct.df$won2) #using a table to visually see data 
+
+
+```
+  The size of the ATE is -0.12 (rounded), numerically this is may be considered a small treatment size. However, in context this size could be considered large as it would mean that 12% of the population is influenced by the control and treatment in a negative relationship. Imagining this on a larger scale shows the true significance of the size, as theoretically 12% of an election being swayed by any variables is quite significant given the importance of elections and how large they are, especially in the case of the United States of America.
+
+# Question 5 
+
+  The average treatment effect measures the difference in mean between treatment and control variables and refers to the causal effect of a binary variable on an outcome. It is used to compare the treatments in randomized experiments such as this one. Although, indeed, correlation does not equal causation, the nature of the average treatment effect is to in fact measure the effect of each variable to show the overall causation to the experiment. We know from the previous question that the ATE is negative, meaning that there is a negative relationship on television affecting political behavior. However, it should be noted that there are still a plethora of confounding variables that have not been taken into account and the validity of this study and its application to the greater society can be called into question. Nevertheless, we can interpret the ATE as causal given that it measures the binary variables to the outcome thus establishing causality between the two.
+
+# Question 6
+
+```{r}
+library(gmodels)
+#Library needed for the cross-table 
+
+elct_recode<-elct.df
+elct_recode$catholic[elct.df$catholic ==1] = "Catholic"
+elct_recode$catholic[elct.df$catholic ==0] = "Non-Catholic"
+#Re-coding to display Catholics and Non-Catholics 
+
+elct_recode$tv[elct.df$tv ==1] = "TV"
+elct_recode$tv[elct.df$tv ==0] = "Radio"
+#More re-coding 
+
+
+CrossTable(elct_recode$tv, elct_recode$catholic,
+           format ="SPSS",
+           prop.c = TRUE,
+           prop.r = FALSE,
+           prop.t = FALSE,
+           prop.chisq = FALSE)
+           
+#used a cross-table we learned from class because graph would be ineffective for these variables.
+#Using a graph would just result in displaying 1s and 0s on the x and y axis.            
+```
+  The Cross Table above tells us the distribution of pre-treatment variable "catholic" to the two experimental conditions of TV and Radio. The pre-treatment variable tells us if participants self-identified as Catholic. In the table it is evident that there are a total of 37 Catholics which make up 23.125% of the participants, and 123 non-Catholics which make 76.875% of the total participants. Of the 37 Catholics, 21 reported listening to the debate on a Radio which accounts for 56.757% of Catholics. While the rest reported listening to the debate on the TV. For non-Catholics, the distribution between Radio and TV were almost fifty-fifty, with 62 listening to the Radio, and 61 watching the TV. In total, there were 83 Radio listeners and 77 TV watchers. 
+
+  It is important to consider that there were null data that was removed to calculate the cross distributions. Although it may seem insignificant, it still plays a role in depicting the overall study. Furthermore, the lack of other religious pre-treatment variables can make the results seem a lot smaller but in context these numbers are beneficial in the understanding of the experiment. 
+
+  From this data it can said that more Catholics listen to the Radio than they watched the debate on TV, while it was nearly equal between non-Catholics. This suggests that Catholics are more likely to use Radios, which provides insight into why the mean for the radio and perceived winner was leaning slightly more towards Nixon and the Republican Party than the mean TV and perceived winner, which was leaning slightly towards Kennedy and the Democrats. It could be said from this that Catholics are more conservative in thinking and function as the Radio users are using dated technology and are also voting more conservatively. This variable suggests a relationship between voting patterns and media format preferences. However, there are a plethora of confounding variables that limits drawing a concrete causality between these variables.
+
+# Question 7
+  Druckman informing readers that the participants were recruited from the University of Minnesota enrolled in summer courses already draws severe issues with causality, primarily that these results are now categorized as low internal validity as they do not draw conclusions that can be generalized due to new and potential confounding variables, as well as the fact that the study is observational. Due to the method of Druckman's experiment using participants from a specific university during a specific time, the results will yield a conclusion that only speaks for these mentioned parameters in the experiment. This issue in causality is further reinforced by the under-representation of Republicans and over-representation of Women. To reiterate, Druckman's results yield a lower internal validity and overall make it harder to establish causality given the inaccurate representation in the population and more confounding variables. Although a correlation can be drawn from the experiment, it is done so with low internal validity and thus more relevant to the specific environment in which it was conducted rather than being representative of the greater society in which Druckman aims to observe and draw a conclusion. 
+
+# Question 8
+
+```{r}
+elct_recode$sophdum3[elct.df$sophdum3 ==1] = "Politically Sophisticated"
+elct_recode$sophdum3[elct.df$sophdum3 ==0] = "Non-Sophisticates"
+
+#recoding variables to indicate whether participants are political sophisticates
+
+
+elct_recode$won2[elct.df$won2 ==0] = "Clear Kennedy Win"
+elct_recode$won2[elct.df$won2 > 0 &
+                   elct.df$won2 < 0.5] = "Kennedy Win"
+elct_recode$won2[elct.df$won2 == 0.50] = "Undecided"
+elct_recode$won2[elct.df$won2 > 0.5 &
+                   elct.df$won2 < 1] = "Nixon Win"
+elct_recode$won2[elct.df$won2 ==1] = "Clear Nixon Win"
+
+#need to recede variables to include undecided (0.5), clear wins, 'general' wins
+
+ftable(elct_recode$tv,elct_recode$sophdum3,elct_recode$won2)
+# flat contingency table used to explore relationship between three variables
+
+mean_soph_tv <- mean(elct.df$won2[(elct.df$tv ==1 | elct.df$sophdum ==1)], na.rm = TRUE)
+mean_soph_radoio<- mean(elct.df$won2[elct.df$tv ==0 | elct.df$sophdum3 ==0], na.rm = TRUE)
+mean_notsoph_tv <- mean(elct.df$won2[elct.df$tv ==1 | elct.df$sophdum3 ==0], na.rm = TRUE)
+mean_notsoph_radio <- mean(elct.df$won2[elct.df$tv ==0 | elct.df$sophdum3 ==1], na.rm = TRUE)
+#above is the same subset mean calculation used in question 4.
+
+print(mean_soph_tv - mean_soph_radoio) #ATE for sophisticates
+print(mean_notsoph_tv - mean_notsoph_radio) #ATE for non-sophisticates 
+#using the similar method of calculating a subset mean before we can deduce a multivariate mean 
+#solving for the ATE would yield in the causal effect of political sophisticates 
+```
+
+  As evident from the Flat Contingency Table, there is no evidence showing that there is a difference in sophisticates and non-sophisticated being influenced by the looks of a candidate. The majority of participants answered very similarly with little to no differences in responses. The only major differences are in the radio with non-sophisticated deciding a "clear" Kennedy win, and sophisticates deciding a more general Kennedy win. However, because these participants were using a radio, the physical appearances of the candidates are irrelevant as they could not see them. The participants who did watch the debate voted almost equally with a minute difference between the perceived winner. 
+
+  It could be argued that the flat contingency table is not accurate, so I used a subset mean function to calculate the average treatment effect for political sophisticates and non-sophisticates. I found in both that there was a very minuscule ATE around -0.04 (rounded), meaning that there is a negative relationship between sophisticates and the influence of the physical appearance of a candidate. As previously mentioned these findings are also similar to non-sophisticates. 
+
+  Overall, from the table and the ATE calculations, it is evident that there is no significant evidence pointing to sophisticates being influenced by the appearances of a candidate. There is also no evidence that the causal effect is different between sophisticates and non-sophisticates. 
+
+
+### Disclaimer: Functions not taught in class were learned from R-documentation directly from the R-language project.

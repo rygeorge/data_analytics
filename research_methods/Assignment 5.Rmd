@@ -1,0 +1,152 @@
+---
+title: "Assignment 5"
+author: "Ryan George"
+date: "18/11/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting Started - Setting WD + Importing Data 
+```{r}
+
+setwd("C:/Users/ryans/Documents/POLI 210")
+library(haven) #to read stata data
+exp_df <- read_dta("mitts2018.dta")
+dim(exp_df) #Getting an idea of how big data frame is 
+```
+## Question 1: Histogram
+```{r}
+max(exp_df$is_sympathy_count, na.rm = TRUE) #to see what max count is 
+
+hist(exp_df$is_sympathy_count,
+     main = "Histogram distribution of ISIS sympethethic tweets",
+     xlab = "ISIS sympethethic tweets",
+     ylab = "Frequency of ISIS sympethethic tweets",
+     border = "maroon", #to visualize lower points better
+     col = "cyan") #to visualize data better
+
+mean(exp_df$is_sympathy_count, na.rm = TRUE)
+sd(exp_df$is_sympathy_count, na.rm = TRUE)  
+summary(exp_df$is_sympathy_count)
+```
+The Histogram above illustrates the distribution of the frequency of ISIS sympathetic tweets. As evident visually from the data tail on the right, the central tendencies of measure lay on the left of the histogram. From the histogram itself, we can assume that the central tendency measure such as a mean is closer to the left of the graph given higher frequency for those ranges. Similarly, the disproportionate frequency of ISIS sympathetic tweets means that there will be a higher standard deviation. This is calculated from the mean and standard deviation functions which yielded a mean of 6 (rounded) and a standard deviation of 13 (rounded). All in all, these central and dispersion measures further reinforce what can be seen visually, that is that the histogram is skewed to the right. We also know from the summary function that the max data point is 185 meaning that there are significant outlines to the data which can skew central tendencies slightly, this is evident by the mean being 1. Generally, the median is less receptive to outlines as it represents the middle values in the data. 
+
+
+
+## Question 2: Scatter-plot
+```{r}
+library(ggplot2) # Needed for scatter plots 
+
+summary(exp_df$is_sympathy_count) #shows us idea of data, including NA data
+summary(exp_df$right_wing_pct) #shows us idea of data, including NA data
+
+#We need to understand how much missing data will be removed  
+
+#Use ggplot for scatter plot 
+ggplot(exp_df, aes(x=right_wing_pct, y=is_sympathy_count))+ 
+    geom_point(size = 1/2, alpha = 3/10, color = "Blue") + 
+    geom_smooth(method = "lm", color="Black") + theme_minimal() + 
+    labs(
+    title = "Relationship between far-right voters and pro-ISIS tweets",
+    subtitle = "(Radicalization is operationalized by number of pro-ISIS tweets)",
+    caption = "Data courtsey of Tamar Mitts.",
+    tag = "Figure 1",
+    x = "Percentage of far right-wing votes recieved in 2015 election",
+    y = "Number of tweets sympathetic to ISIS sent by a user ",
+    color = "Blue") 
+
+#labs() changed colour of graph and put caption, labels and titles 
+#theme_mimimal() is the theme of the graph 
+#geom-point() has size of dots at 0.5 and alpha at 0.3 
+
+cor(exp_df$right_wing_pct, exp_df$is_sympathy_count,
+    method = "pearson",
+    use = "complete.obs")
+
+```
+
+
+The graph above illustrates the relationship between the percentage of Far Right-wing votes received in the 2015 election and the number of tweets sympathetic to ISIS sent by a user. Due to the discrete nature of the number of tweets sympathetic to ISIS the variables are displayed in a column-like way. The line of best fit is low and horizontal is indicative of a small linear relationship. Moreover, numerous outliers fall outside of the discrete columns. Overall, the direction of the data is positive. The strength of the variables is little given the amount of noise and lack of a linear relationship and the overlap of data points to one another, all of which is further reinforced by the Pearson correlation coefficient that is extremely close to zero at 0.009. 
+
+
+## Question 3: Linear Regression 
+```{r}
+
+bivarate.model <- lm(is_sympathy_count ~ right_wing_pct, exp_df) 
+#dependent variable ~ independent variable, to find linear regression 
+
+
+summary(bivarate.model) #represent the linear model using summary function.
+
+library(modelsummary) #need dependency for publication method 
+modelsummary(bivarate.model) #using dependency to make linear model table
+
+names(bivarate.model$coefficients) <- c('(Intercept)','Right-wing Votes Percentage')
+#Changing name of coefficients and then running changes later models 
+modelsummary(bivarate.model)
+
+
+
+modelsummary(bivarate.model, statistic = 'conf.int', conf_level = 0.95)
+#changing the confidence interval of the linear model. 
+
+
+```
+
+## Question 4: B1 and B0 Estimates 
+
+The B0 coefficient is 5.731 which is also the 'b' value in linear regression, while the B1 coefficient is 0.021 and the 'a' value in the linear regression equation. B0 is the linear intercept of the equation, in this case when x=0, y=5.731. B1 is the slope of the equation line and can be interpreted as the relationship in change between both variables. In this case, the slope of the regression line is low with it being close to 0 indicating a low correlation as for every change in ISIS sympathy tweets, the right-wing percentage voter increases by the coefficient value.
+
+## Question 5: Interpretation of P-value and Standard Error
+
+The P-value is the probability that an observed variable could have happened randomly. The lower the p-value, the greater the statistical significance of the observed variable. P-value can be used independently or with a pre-selected confidence interval for hypothesis testing. As evident from the linear model above, the value of the P-test is equal to 0.0132. The interpretation of this value is that it is close to 0 thus giving apt evidence to reject a Null Hypothesis and establish a statistical significance. The standard error is representative of the accuracy of the measure of central tendency compared to the true population measures of central tendency. A low standard of error means the dispersion of the data is closer and thus a more accurate representation of the population. For the linear model found in this experiment, the standard error was significantly close to zero at 0.008 thereby showing the accuracy relative to the population. The Null Hypothesis is the hypothesis that there is no significant difference between specified populations due to sampling or experimental error. The null hypothesis is a default hypothesis that a quantity to be measured is zero. An example of null hypothesis significance testing is the use of the p-value. The p-value is the probability of obtaining test results similar to the results observed, all of which are conducted under the assumption that the null hypothesis is correct. The aforementioned P-value in this case being so close to 0 is enough to reject the null hypothesis. 
+
+
+## Question 6: P-value and Standard Error
+
+As stated in the previous answer, the P-value establishes statistical significance as there is a value that is close to zero which therefore enforces the idea of a strong statistical significance between the variables. The statistical significance suggests the accuracy of variables whereas substantive significance interprets the relationship itself. In this case, the substantive significance is 0.021 evident by the linear regression model for the Right voter percentage. This number is indicative of the strength of the relationship between the variables, due to the number being so close to 0 this indicates no substantive significance as there is little strength between the variables. Therefore, the observed effect is not large enough to be meaningful given how small it is. 
+
+
+## Question 7: R-squared value and interpretation 
+```{r}
+
+summary(bivarate.model)$r.squared #for r^2 value
+
+#we can cross-reference this value with the original linear model table 
+
+summary(bivarate.model)
+
+#look at value for "multiple r-squared"
+```
+The R-squared value, also known as the coefficient of determination, is the proportion of variation in the dependent variable anticipated by the independent variable. In this scenario, the independent variable X is the percentage of far right-wing votes, while the dependent variable denoted as Y is the number of tweets sympathetic to ISIS. 
+
+As previously mentioned the value measures the proportion of variation between the dependent and independent variables meaning that an r-squared value of 0 indicates no relationship between the IV and DV since there exists 0% of the variation between the variables. Contrarily, an R-squared of 1 represents a perfect relationship between the independent and dependent variables that are predicted by the independent variable. The more the R-squared value approaches 1, the more indicative the model fits the data accurately and has a strong correlation.
+
+In this example, the value of the R-squared is 9.703e-05, thus being extremely close to 0 and therefore indicating a weak correlation between the variables.
+
+
+
+
+## Question 8: Linear model with additional variable
+```{r}
+library(modelsummary) #Publication table is easier to read
+bivarate.model2 <- lm(is_sympathy_count ~ right_wing_pct + not_born_in_UK_pct, data = exp_df)
+#new model with variables added in linear regression 
+
+summary(bivarate.model2) #to read linear model 
+modelsummary(bivarate.model2) #for publication model 
+```
+
+
+## Question 9: Analysis of new linear model  
+
+The addition of a variable to a linear regression usually adds more risk for statistical significance given inherently the inclusion of more confounding variables present in the added variables. In the case of 'right_wing_pct', the statistical significance increases. This is because not taking into account confounding variables can yield an overestimate or underestimate of the effect being explored, in this case, the effect of not being born in the United Kingdom. Therefore holding users not born in the United Kingdom as a constant variable, the right-wing percentage of the user locality has an increased level of statistical significance on the number of ISIS sympathetic tweets. It is evident from the model that an increase in substantive significance has occurred, however, this might be unlikely given that there needs to be a significant increase in right-wing voter percentages to equate to a change in pro-ISIS tweets, and even then the change that the percentage increase yields is insignificant. All in all, despite the increase in substantive significance the context behind this change, is not indicative of any real or meaningful substantive significance. 
+
+
+```{r}
+print("thank you for the informative class, I learned a lot and it was fun")
+
+```

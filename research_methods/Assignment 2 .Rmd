@@ -1,0 +1,90 @@
+---
+title: "Assignment 2"
+author: "Ryan George"
+date: "06/10/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Part 1: Set Working Directory and import dataframe as object 
+```{r}
+setwd ("C:/Users/ryans/Documents/POLI 210")
+getwd() #just to check
+cl.sv <- read.csv("class_survey.csv") #stands for class survey 
+```
+
+# Part 2: Total amount of observations and variables 
+```{r}
+dim(cl.sv)
+str(cl.sv)
+#str shows more detailed account for number of obs. and variables
+print(dim(cl.sv))
+print(str(cl.sv)) #literally "printing" functions
+```
+
+# Part 3: Print Observation 1
+```{r}
+cl.sv[1,1:3]
+```
+# Part 4: Histogram and Table
+```{r}
+hist(cl.sv$ideology,
+     main = "Histogram of Student Ideology",
+     xlab = "Student Ideology")
+
+table(cl.sv$ideology)
+```
+
+# Part 5: Mean, Median and Standard Deviation calculations 
+```{r}
+mean(cl.sv$ideology, na.rm = TRUE)
+median(cl.sv$ideology, na.rm = TRUE)
+sd(cl.sv$ideology, na.rm = TRUE)
+```
+
+# Part 6: 
+The functions from part 5 show us the mean, median and standard deviation. From these calculations, it is evident that the class is on average left-leaning at 2.95 on a scale of 0-10, while the median score is 3. The standard deviation tells us how dispersed the data is relative to the mean. From these calculations, we can conclude that the class is 'grouped' up together but slightly right-skewed with the majority of answers identifying with the left-leaning ideology. This is further reinforced by both the histogram and tables as we can see a higher frequency in "left-leaning" and "moderate" ideologies in comparison to "right-leaning". Evidence of a right-skewed dataset can also be seen in the mean and median which is towards the left given the scale of 0-10. 
+
+# Part 7: Variable Recode 
+```{r}
+cl.sv$ideology_recode <- cl.sv$ideology
+
+cl.sv$ideology_recode[cl.sv$ideology <= 3] <- "Left-Leaning"
+cl.sv$ideology_recode[cl.sv$ideology >= 4 &
+  cl.sv$ideology_recode <= 6] <- "Moderates"
+cl.sv$ideology_recode[cl.sv$ideology >= 7] <- "Right-Leaning"
+
+table(cl.sv$ideology_recode) 
+#test to see if function works 
+
+table(cl.sv$ideology_recode, cl.sv$ideology) 
+#table comparing re-coded variable to ideology
+```
+
+# Part 8: Bonus subset question
+```{r}
+cl.sv$gender_recode <- cl.sv$gender
+cl.sv$gender_recode[cl.sv$gender == "Male"]
+cl.sv$gender_recode[cl.sv$gender == "Female"]
+cl.sv$gender_recode[cl.sv$gender == ""] <-NA
+cl.sv$gender_recode[cl.sv$gender == "Other"] <- NA
+
+table(cl.sv$gender) #test to compare to re-coded gender variable
+
+
+table( cl.sv$gender,cl.sv$gender_recode) 
+#test to see if functions were successful 
+
+
+table(cl.sv$gender_recode) 
+#test to see function alone 
+
+
+table(cl.sv$gender_recode, cl.sv$ideology) 
+#comparison between ideology and gender (male and female respondents only)
+
+table(cl.sv$gender_recode, cl.sv$ideology)
+``` 
+As evident from the table above, there is a distinct difference in self-reported political ideologies between Males and Females in the class. Females have a far more right-skewed data with only 4 females reporting "right-leaning" and the rest reporting either "moderate" or "left-leaning". Compared to the males who have a more even distribution that is still slightly right-skewed. There is at least one report for each number on the table scale, compared to the females who do not have any self-reported 9. Both Males and Females have no reported 10s and both have a similar amount of moderates. The females have far more center-right and center-left respondents, while the males have more respondents further in each political ideology and have 15 right-leaning compared to 4 females reporting "right-leaning". Thus it can be said that women tend to be more left-leaning, especially in this class, while Males have more right-leaning respondents. Overall, this class has no far-right respondents and both have a similar amount of moderates with females having slightly more. The class as a whole is right-skewed, but it is also important to consider that there are twice the number of females to males in this study, therefore inherently under-representing males in the dataset. 
